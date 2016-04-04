@@ -1,0 +1,43 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[pdftex]{graphicx}
+\usepackage{url}
+\usepackage[bookmarks,
+            colorlinks=false,
+            pdfborder={0 0 0},
+            pdftitle={Modern Fuzzing with afl}]{hyperref}
+\usepackage{appendix}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{listings}
+\usepackage{tablefootnote}
+\usepackage{tikz}
+\usepackage{scalefnt}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{copyrightbox}
+
+\begin{document}
+\renewcommand\bibname{References}
+\renewcommand{\chaptername}{Section}
+
+\include{title}
+
+\pagenumbering{roman} %numbering before main content starts
+\tableofcontents
+\listoffigures
+\listoftables
+\listofalgorithms
+
+\newpage
+\pagenumbering{arabic} %reset numbering to normal for the main content
+
+\include{section1}
+\include{section2}
+\include{section3}
+\include{section4}
+\include{ref}
+\include{appendix}
+
+\end{document}
