@@ -1,1 +1,89 @@
-\chapter{Rename Me 3}
+\chapter{The \texttt{afl} Approach}
+
+% TODO: mention somewhere afl is targetted mainly for binary inputs
+
+At a high level, \texttt{afl} has only a two goals: given some input corpus,
+as quickly and reliably as possible:
+
+\begin{enumerate}
+    \item Create test cases that reach new program states
+    \item Identify inputs that cause the process to die due to some
+    OS signal (e.g. \texttt{SIGSEV} or \texttt{SIGABRT})
+\end{enumerate}
+
+That's it. \texttt{afl} just repeatedly mutates input files in order to
+``evolve'' more interesting test cases out of thin air.
+\texttt{afl}'s novelty compared to other fuzzing tools comes from its
+efficiency and core feedback loop: special instructions are inserted into the
+target binary at compile-time, and during program execution every branch
+statement reports back to the controlling process whenever it is executed.
+Thus, \texttt{afl} can efficiently classify newly-mutated test cases based on
+the number and diversity of branch statements they cause to be executed.
+
+Test cases that cause a program to crash or hang are archived along with
+execution metadata.
+
+\section{Core Operations}
+
+% TODO
+% mention some stuff about the overall layout so the rest of this makes
+% sense. in particular, there is a controlling process that spins up
+% other child processes.
+
+% mention that program gets run with a special wrapper, afl-fuzz
+
+% in-depth overview
+
+\subsection{Compile-time Instrumentation}
+
+\texttt{afl} injects code at \textit{every} branch point in the target
+binary and captures both overall branch coverage and a rough measure of branch 
+hit counts. Figure \ref{fig:injection} shows the simplified version of the code
+injected around branch statements\cite{afl-whitepaper}.
+
+\begin{figure}[H]
+    \begin{lstlisting}[language={[ANSI]C}]
+cur_location = <COMPILE-TIME RANDOM>;
+shared_mem[cur_location ^ prev_location]++;
+prev_location = cur_location >> 1;
+\end{lstlisting}
+\caption{Simplified version of the code injected around branch statements}
+\label{fig:injection}
+\end{figure}
+
+% what we do with branch statements
+% example?
+
+
+\subsection{Classifying Program State}
+
+\texttt{afl} classifies program state by labeling branch statements
+as a $(src, dst)$ 2-tuple.
+
+\texttt{afl} maintains a global array 
+
+
+% (src, dst) tuples in global shared map
+% what makes a new state
+
+\subsection{Exploring New Program States}
+
+% when branch is hit, update shared mem bucket
+% when to save a test case
+
+\section{Fuzzing Strategies}
+
+\subsection{Test Case Evolution}
+
+\subsection{Deterministic Fuzzing}
+
+\subsection{Random Fuzzing}
+
+\section{Optimizations}
+% smart optimization means more states explored
+
+\subsection{Pruning the Input Queue}
+
+\subsection{Trimming Test Cases}
+
+\subsection{Copy-on-write Process Clones}

@@ -7,10 +7,10 @@ all: ${PDF}
 
 ${PDF}: ${TEX}
 	${BUILD} ${SRC}
-	#bibtex ${SRC}.aux
+	bibtex ${SRC}.aux
 	${BUILD} ${SRC}
-	#bibtex ${SRC}.aux
-	#bibtex ${SRC}.aux
+	bibtex ${SRC}.aux
+	bibtex ${SRC}.aux
 	${BUILD} ${SRC}
 	${BUILD} ${SRC}
 
