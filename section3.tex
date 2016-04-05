@@ -1,9 +1,7 @@
 \chapter{The \texttt{afl} Approach}
 
-% TODO: mention somewhere afl is targetted mainly for binary inputs
-
-At a high level, \texttt{afl} has only a two goals: given some input corpus,
-as quickly and reliably as possible:
+At a high level, \texttt{afl} has only a two goals: given some binary\footnote{While optimized for binary inputs, \texttt{afl} can also handle more verbose, human-readable input formats (e.g. SQL, XML). However, these techniques are less advanced, less efficient, less commonly used, and considered out of scope for this report.}
+input corpus, as quickly and reliably as possible:
 
 \begin{enumerate}
     \item Create test cases that reach new program states
@@ -25,15 +23,17 @@ execution metadata.
 
 \section{Core Operations}
 
-% TODO
-% mention some stuff about the overall layout so the rest of this makes
-% sense. in particular, there is a controlling process that spins up
-% other child processes.
+Programs to be fuzzed with \texttt{afl} are built using special compiler
+wrappers (\texttt{afl-gcc}, \texttt{afl-g++}, \texttt{afl-clang}, or
+\texttt{afl-clang++}, as appropriate). The main fuzzer, \texttt{afl-fuzz},
+is then run on the output binary and acts as a monitor and controlling
+process, communicating with the target binaries through instructions
+inserted by the compiler wrappers.
 
-% mention that program gets run with a special wrapper, afl-fuzz
-
-% in-depth overview
-
+\texttt{afl} maintains a queue of test cases that it loops over while
+executing various fuzzing strategies. This input queue is initially seeded
+with test files from the user, and as the fuzzing proceeds the queue is
+augmented with new test cases produced through the mutation process.
 
 \subsection{Classifying Program State}
 
@@ -53,9 +53,13 @@ worth saving, if either of the following two conditions are met:
 Hit counts are approximate and grouped into the following buckets\cite{afl-whitepaper}: $\{1\}, \{2\}, \{3\}, \{4-7\}, \{8-15\}, \{16-31\}, \{32-127\}, \{128+\}$. A new hit count only counts toward a new state if the branch tuple
 hit count changes buckets.
 
+When a new program state is observed, the execution's test case is placed
+on the input queue for further processing\footnote{Subject to optimizations mentioned in Section \ref{sec:optimizations}.}
+
 \subsection{Compile-time Instrumentation}
 
-\texttt{afl} injects code at \textit{every} branch point in the target
+The \texttt{afl} compiler wrappers inject code at \textit{every} branch point
+in the target
 binary to capture both overall branch coverage and a rough measure of branch 
 hit counts for every program execution.
 Figure \ref{fig:injection} shows the simplified version of the code
@@ -80,17 +84,33 @@ $(A, A) \neq (B, B)$.
 
 \subsection{Exploring New Program States}
 
-% TODO: when to save a test case
+Test cases that reach new program states are added back to \texttt{afl}'s
+input queue. This basic feedback loop allows \texttt{afl} to easily identify
+test cases that produce the most reachable, unique program states and,
+eventually, explore myriad program state transitions and executions through
+a continually-improving iterative process, even when given a minimal input
+corpus.
+
+\texttt{afl} saves test cases only when they cause a \textit{unique} crash,
+where a test case is considered unique if either of the following
+conditions are met\cite{afl-whitepaper}:
+\begin{itemize}
+    \item The crash trace includes a $(src, dst)$ tuple not seen in any
+    other crash traces.
+    \item The crash trace is \textit{missing} a $(src, dst)$ tuple that was
+    present in \textit{all} earlier crashes.
+\end{itemize}
+
+\subsubsection{Test Case Evolution}
+
+By adding new and interesting mutated test cases back into the global input
+queue, \texttt{afl} is able to \textit{evolve} progressively better and better
+(in terms of reachable states and number of unique crashes) test cases
+over time from the initial seed inputs. These evolved test cases can then be
+used to manually explore program behavior and augment existing unit and
+regression tests.
 
 \section{Fuzzing Strategies}
-
-% TODO: set this up?
-
-\subsection{Test Case Evolution}
-
-% TODO: mention how test cases are evolved
-
-\subsection{Deterministic Fuzzing Methods}
 
 \texttt{afl} uses a combination of deterministic and random fuzzing strategies.
 The fuzzing techniques are performed in sequence, with each stage
@@ -100,10 +120,20 @@ algorithm that weighs expected new state coverage against the performance
 loss by continuing the current stage. Overview of \texttt{afl} fuzzing
 stages comes from \cite{afl-fuzzing-blogpost}.
 
+\subsection{Deterministic Fuzzing Methods}
+
+
+\texttt{afl}'s deterministic fuzzing methods are the both the ``dumbest''
+and most computationally efficient methods used. They are
+generally able to hit many of the ``shallow'', or easy-to-reach, program states,
+and output from these stages is used as input to the more advanced, randomized
+fuzzing strategies.
+
 \subsubsection{Walking Bit Flips}
 
-The first mutation strategy \texttt{afl} uses is simple bit flips. The bit
-flips are done sequentially, with a single step, across the entire file.
+The first deterministic mutation strategy \texttt{afl} uses is simple bit
+flips. The bit flips are done sequentially, using a single step process across 
+the entire test case.
 
 \subsubsection{Walking Byte Flips}
 
@@ -121,10 +151,14 @@ individual byte, 16-byte value, and 32-byte value\footnote{\texttt{afl} tries 16
 
 The final deterministic fuzzing stage uses a strategy \texttt{afl} refers
 to as \textit{known integers}: manually chosen integers likely to cause
-edge cases or errors (e.g. $-1, 256, MAX\_INT$, etc.) are substituted
+edge cases or errors (e.g. $-1, 256, \texttt{MAX\_INT}$, etc.) are substituted
 in for integer values in the program.
 
 \subsection{Random Fuzzing}
+
+\texttt{afl}'s randomized fuzzing modes are more computationally expensive
+and time-consuming, but the tradeoff is they can often reach states that
+are very difficult to reach through simple, deterministic methods.
 
 \subsubsection{Stacked Tweaks}
 
@@ -151,16 +185,48 @@ the input queue, randomly chooses a point near the middle of both files,
 and splices them together to create a new test input.
 
 \section{Optimizations}
-% TODO: set this up => smart optimization means more states explored
+\label{sec:optimizations}
+
+Part of \texttt{afl}'s governing design philosophy is that efficiency
+leads directly to higher program state coverage and more uniquely discovered
+crashes. To speed up the fuzzing process and reach the greatest number
+of states per fuzzing run, \texttt{afl} employs 3 major optimization
+strategies\cite{afl-whitepaper}.
 
 \subsection{Pruning the Input Queue}
 
-% TODO
+Since \texttt{afl}'s fuzzing strategies are run on each test case in the
+input queue, reducing the total queue size while still reaching the same
+number of program states lets \texttt{afl} do less work to get the same
+overall results. Eventually, some test cases in the input queue may
+provide a strict superset of program state coverage compared to earlier
+test cases, and \texttt{afl} exploits this to perform its first core
+optimization: pruning the input queue.
+
+\texttt{afl} periodically scans the input queue and scores each test case
+based on both its execution trace (number of unique $(src, dst)$ tuples and
+their associated hit counts) and file size. The best-scoring test for
+each $(src, dst)$ tuple survives until the next round, and other test
+cases are pruned\footnote{\texttt{afl} is actually a bit more clever than this: low-scoring test cases are not \textit{necessarily} pruned immediately, but the full pruning algorithm is out of scope for this paper.}.
 
 \subsection{Trimming Test Cases}
 
-% TODO
+Smaller test files generally mean less work for \texttt{afl}, so \texttt{afl}
+periodically attempts to reduce the size of test cases in the input queue.
+Blocks are successively removed from each test file, and, if the deletion
+has no effect on the execution trace (that is, the same tuples are reached
+and the hit count buckets remain the same), the block deletion is finalized.
 
 \subsection{Copy-on-write Process Clones}
 
-% TODO
+The final core optimization \texttt{afl} makes is an attempt to reduce the
+overhead from calling \texttt{execve()} once per test run. \texttt{afl}
+inserts some \textit{additional} instructions at compile-time that let processes
+\textit{wait} at a particular point in program execution
+(generally, right before the first branch statement) until it receives
+a \textit{go} instruction from the \texttt{afl} controlling process.
+
+The lets \texttt{afl} spin up a master single process, take a snapshot of the
+waiting process right before the first branch, and then use this snapshot to
+execute many child processes. The child processes use a copy-on-write strategy 
+to only update their own process image when a state change occurs.
