@@ -11,7 +11,7 @@ as quickly and reliably as possible:
     OS signal (e.g. \texttt{SIGSEV} or \texttt{SIGABRT})
 \end{enumerate}
 
-That's it. \texttt{afl} just repeatedly mutates input files in order to
+That's it -- \texttt{afl} just repeatedly mutates input files in order to
 ``evolve'' more interesting test cases out of thin air.
 \texttt{afl}'s novelty compared to other fuzzing tools comes from its
 efficiency and core feedback loop: special instructions are inserted into the
@@ -34,12 +34,32 @@ execution metadata.
 
 % in-depth overview
 
+
+\subsection{Classifying Program State}
+
+\texttt{afl} classifies program state by labeling branch statements
+as a $(src, dst)$ 2-tuple and maintaining a global map of
+$(src, dst) \rightarrow hitcount$. A handle to the global map is passed
+to the target binary, and every time a branch statement is hit the map
+gets updated.
+
+A program state is considered ``new'', and the corresponding test case
+worth saving, if either of the following two conditions are met:
+\begin{itemize}
+    \item A new (not seen in previous executions) $(src, dst)$ tuple is produced
+    \item A new tuple hit count is produced
+\end{itemize}
+
+Hit counts are approximate and grouped into the following buckets\cite{afl-whitepaper}: $\{1\}, \{2\}, \{3\}, \{4-7\}, \{8-15\}, \{16-31\}, \{32-127\}, \{128+\}$. A new hit count only counts toward a new state if the branch tuple
+hit count changes buckets.
+
 \subsection{Compile-time Instrumentation}
 
 \texttt{afl} injects code at \textit{every} branch point in the target
-binary and captures both overall branch coverage and a rough measure of branch 
-hit counts. Figure \ref{fig:injection} shows the simplified version of the code
-injected around branch statements\cite{afl-whitepaper}.
+binary to capture both overall branch coverage and a rough measure of branch 
+hit counts for every program execution.
+Figure \ref{fig:injection} shows the simplified version of the code
+injected around branch statements\cite{afl-whitepaper}. \\
 
 \begin{figure}[H]
     \begin{lstlisting}[language={[ANSI]C}]
@@ -51,20 +71,12 @@ prev_location = cur_location >> 1;
 \label{fig:injection}
 \end{figure}
 
-% what we do with branch statements
-% example?
-
-
-\subsection{Classifying Program State}
-
-\texttt{afl} classifies program state by labeling branch statements
-as a $(src, dst)$ 2-tuple.
-
-\texttt{afl} maintains a global array 
-
-
-% (src, dst) tuples in global shared map
-% what makes a new state
+In Line 1, \texttt{cur\_location} is a randomly-generated identifier
+assigned to each branch statement. In Line 2, the global branch tuple hit count
+is updated for the corresponding $(src, dst)$ tuple. The right shift in Line 3
+preserves directionality of tuples and ensures the following two
+qualities: if $A$ and $B$ are two branch identifiers, $(A, B) \neq (B, A)$ and
+$(A, A) \neq (B, B)$.
 
 \subsection{Exploring New Program States}
 
@@ -73,11 +85,64 @@ as a $(src, dst)$ 2-tuple.
 
 \section{Fuzzing Strategies}
 
+% mention test cases progress sequentially
+% mention we switch at perf/output tradeoff
+
 \subsection{Test Case Evolution}
 
-\subsection{Deterministic Fuzzing}
+\subsection{Deterministic Fuzzing Methods}
+
+% TODO: make sure to cite afl-whitepaper for these methods
+
+\subsubsection{Walking Bit Flips}
+
+The first mutation strategy \texttt{afl} uses is simple bit flips. The bit
+flips are done sequentially, with a single step, across the entire file.
+
+\subsubsection{Walking Byte Flips}
+
+The next step is walking byte flips: 8-, 16-, and 32-byte bitflips performed
+sequentially across the input file.
+
+\subsubsection{Arithmetic}
+
+\texttt{afl} then tries to perform simple arithmetic operations
+on all integers in the input file: the fuzzer tries both addition and
+subtraction of random bytes\footnote{\texttt{afl} restricts the arithmetic range to $[-35, 35]$\cite{afl-whitepaper}} for each
+individual byte, 16-byte value, and 32-byte value\footnote{\texttt{afl} tries 16- and 32-byte arithmetic operations in both endians, providing the operation would have affected the significant byte(s)\cite{afl-whitepaper}}.
+
+\subsubsection{Known Integers}
+
+The final deterministic fuzzing stage uses a strategy \texttt{afl} refers
+to as \textit{known integers}: manually chosen integers likely to cause
+edge cases or errors (e.g. $-1, 256, MAX\_INT$, etc.) are substituted
+in for integer values in the program.
 
 \subsection{Random Fuzzing}
+
+\subsubsection{Stacked Tweaks}
+
+The first randomized strategy \texttt{afl} uses, \texttt{stacked tweaks},
+consists of a sequential loop through the following randomized operations
+over test cases in the input queue:
+
+\begin{enumerate}
+	\item Bit flips
+	\item Attempts to set human-chosen ``interesting'' values
+    \item Simple additiona and subtraction
+    \item Completely random byte-set substitutions
+    \item Block deletion
+    \item Block duplication or insertion
+    \item Block memset
+\end{enumerate}
+
+The stack of operations is looped over as the file is repeatedly mutated.
+
+\subsubsection{Test Case Splicing}
+
+The final fuzzing strategy employed simply randomly pairs test cases from
+the input queue, randomly chooses a point near the middle of both files,
+and splices them together to create a new test input.
 
 \section{Optimizations}
 % smart optimization means more states explored
