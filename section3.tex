@@ -92,7 +92,13 @@ $(A, A) \neq (B, B)$.
 
 \subsection{Deterministic Fuzzing Methods}
 
-% TODO: make sure to cite afl-whitepaper for these methods
+\texttt{afl} uses a combination of deterministic and random fuzzing strategies.
+The fuzzing techniques are performed in sequence, with each stage
+creating new test cases that are used as input for the next stage. Exactly
+when the fuzzer transitions from one stage to the next is determined by an
+algorithm that weighs expected new state coverage against the performance
+loss by continuing the current stage. Overview of \texttt{afl} fuzzing
+stages comes from \cite{afl-fuzzing-blogpost}.
 
 \subsubsection{Walking Bit Flips}
 
