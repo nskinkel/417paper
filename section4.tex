@@ -46,6 +46,13 @@ memset(buf, 0, msg->len);
 
 \subsection{\texttt{afl} Setup and Execution}
 
+\iffalse
+nskinkel@zbox:~/src/afl/fuzz$ AFL_USE_ASAN=1 AFL_HARDEN=1 ~/src/afl/afl-2.10b/afl-gcc -g -Wall msg-parse.c
+afl-cc 2.10b by <lcamtuf@google.com>
+afl-as 2.10b by <lcamtuf@google.com>
+[+] Instrumented 41 locations (64-bit, hardened mode, ratio 33%).
+\fi
+
 \subsection{Results}
 
 % TODO
