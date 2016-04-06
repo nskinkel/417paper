@@ -18,7 +18,7 @@
  *
  * See the UNSAFE statements for details.
  */
-#define MIN_MSG_SIZE 1 + 1 + 1 + 1 + 1
+#define MIN_MSG_SIZE 1 + 1 + 1 + 2 + sizeof(char*) + sizeof(char*)
 #define MSG_TYPE_CLIENT_HELLO 1
 
 typedef struct {
