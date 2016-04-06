@@ -18,9 +18,7 @@
  *
  * See the UNSAFE statements for details.
  */
-
 #define MIN_MSG_SIZE 1 + 1 + 1 + 1 + 1
-
 #define MSG_TYPE_CLIENT_HELLO 1
 
 typedef struct {
@@ -108,7 +106,6 @@ parse_msg(uint8_t *buf, size_t buf_len) {
     msg->uname_len = buf[idx++];
     // read overall msg len
     msg->len = (buf[idx] << 8) | buf[idx+1];
-    //msg->len = buf[idx+1] | (buf[idx] << 8);
     idx += 2;
 
     if (!(msg->addr = malloc(msg->addr_len+1))) {
