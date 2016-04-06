@@ -17,7 +17,9 @@ This practical evaluation has 2 main parts:
 \subsection{The Vulnerable Code}
 
 Figure \ref{fig:vuln-snippet} shows the vulnerable code snippet from
-the fuzzed program (for full source code, see Appendix \ref{app:vuln-full}).
+the fuzzed program\footnote{for full program source code see Appendix
+\ref{app:vuln-full}, and for a small tool that can generate \texttt{afl}
+seed input files see \ref{app:vuln-seed}}.
 
 \begin{figure}[H]
     \begin{lstlisting}[language={[ANSI]C}]
@@ -42,7 +44,9 @@ memset(buf, 0, msg->len);
 \label{fig:vuln-snippet}
 \end{figure}
 
-\subsection{\texttt{afl} Results}
+\subsection{\texttt{afl} Setup and Execution}
+
+\subsection{Results}
 
 % TODO
 
