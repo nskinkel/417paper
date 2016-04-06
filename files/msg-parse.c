@@ -25,7 +25,7 @@ typedef struct {
     uint8_t type;       // What kind of message is this? Only 1 recognized.
     uint8_t addr_len;   // How long, in bytes, is addr field. Big endian.
     uint8_t uname_len;  // How long, in bytes, is uname field.
-    unsigned short len; // Total length, in bytes, of this message.
+    uint16_t len;       // Total length, in bytes, of this message.
     char *addr;         // Email address.
     char *uname;        // Username.
 } msg_t;

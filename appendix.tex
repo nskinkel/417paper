@@ -135,20 +135,20 @@ parse_msg(uint8_t *buf, size_t buf_len) {
         errexit("malloc() failed for msg->uname.\n");
     }
 
-    // UNSAFE: read of buf[idx] without checking
-    //         idx+msg->addr_len < buf_len
+    // UNSAFE 1: read of buf[idx] without checking
+    //           idx+msg->addr_len < buf_len
     memcpy(msg->addr, &(buf[idx]), msg->addr_len);
     idx += msg->addr_len;
     msg->addr[msg->addr_len] = '\0';
 
-    // UNSAFE: read of buf[idx] without checking
-    //         idx+msg->uname_len < buf_len
+    // UNSAFE 2: read of buf[idx] without checking
+    //           idx+msg->uname_len < buf_len
     memcpy(msg->uname, &(buf[idx]), msg->uname_len);
     msg->uname[msg->uname_len] = '\0';
 
     // for user privacy, zero-out message buffer when we're done
-    // UNSAFE: writes to buf without checking
-    //         msg->len <= buf_len
+    // UNSAFE 3: writes to buf without checking
+    //           msg->len <= buf_len
     memset(buf, 0, msg->len);
 
     return msg;
@@ -220,5 +220,44 @@ for n in xrange(0, OUTPUT_NUM):
             1+1+1+2+len(addr)+len(uname), addr, uname)
         )
 \end{TCBlisting}
+
+\chapter{\texttt{afl}-Generated Test Cases}
+\label{app:test-cases}
+
+The following figures show \texttt{afl}-generated test cases that trigger each
+of the memory safety vulnerabilities in the program shown in Appendix
+\ref{app:vuln-full}. Figure \ref{fig:crash1} shows a test
+case that triggers the vulnerability on Line 128, Figure
+\ref{fig:crash2} shows a test case that triggers the vulnerability on Line 134,
+and Figure \ref{fig:crash3} shows a test case that triggers the vulnerability
+on Line 140.
+
+Full test case files can be downloaded at: \url{https://github.com/nskinkel/417paper/tree/master/files/afl-test-cases}
+
+\begin{figure}
+	\begin{lstlisting}[language={},basicstyle=\small]
+     01 9c 02 00 23 6e 57 47  59 50 51 49 53 63 57 47
+     6c 49 35 71 6b 42 59 4b  4b 36 31 76 58 56 68 73
+     6f 57 68\end{lstlisting}
+\caption{\texttt{afl}-generated file that triggers \texttt{UNSAFE 1}.}
+\label{fig:crash1}
+\end{figure}
+
+\begin{figure}
+	\begin{lstlisting}[language={},basicstyle=\small]
+	 01 1e 02 00 23 6e 57 47  59 50 51 49 53 63 57 47
+	 6c 49 35 71 6b 42 59 4b  4b 36 31 76 58 56 68 73
+	 6f 57 68\end{lstlisting}
+\caption{\texttt{afl}-generated file that triggers \texttt{UNSAFE 2}.}
+\label{fig:crash2}
+\end{figure}
+
+\begin{figure}
+	\begin{lstlisting}[language={},basicstyle=\small]
+	 01 02 17 80 1e 56 67 4c  34 78 76 59 61 72 71 7a
+	 34 75 34 77 54 31 4f 74  69 48 46 61 37 75\end{lstlisting}
+\caption{\texttt{afl}-generated file that triggers \texttt{UNSAFE 3}.}
+\label{fig:crash3}
+\end{figure}
 
 \end{appendices}
