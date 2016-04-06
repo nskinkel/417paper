@@ -18,6 +18,27 @@
 \usepackage{caption}
 \usepackage{copyrightbox}
 \usepackage[framemethod=TikZ]{mdframed}
+\usepackage[many]{tcolorbox}
+\tcbuselibrary{listings}
+
+\newtcblisting{TCBlisting}[1][]{
+  breakable,
+  enhanced,
+  arc=0pt,
+  outer arc=0pt,
+  boxrule=0pt,
+  colback=white,
+  listing only,
+  frame hidden,
+  listing remove caption=false,
+  listing options={#1},
+  overlay middle and last={
+  \node[anchor=south west,text width=\columnwidth] at (frame.north west)
+    {\lstlistingname~\thelstlisting\  (Cont.):~\mylstcaption};
+  }
+}
+
+\newcommand\mylstcaption{}
 
 \lstset{ %                                                                     
 backgroundcolor=\color{white},   % choose the background color; you must add     \usepackage{color} or \usepackage{xcolor}
@@ -32,7 +53,7 @@ keepspaces=true,                 % keeps spaces in text, useful for keeping i   
 basicstyle=\ttfamily,
 keywordstyle=\color{blue}\ttfamily,
 stringstyle=\color{red}\ttfamily,
-commentstyle=\color{green}\ttfamily,
+commentstyle=\color{purple}\ttfamily,
 morecomment=[l][\color{magenta}]{\#},
 numbers=left,                    % where to put the line-numbers; possible va    lues are (none, left, right)
 numbersep=13pt,                   % how far the line-numbers are from the cod    e

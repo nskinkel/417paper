@@ -1,9 +1,14 @@
 \chapter{Practical Evaluation}
 
-% TODO: introduce this section
-% 2 parts:
-%   - afl real-world usage
-%   - my fucking around
+This practical evaluation has 2 main parts:
+\begin{enumerate}
+    \item an \texttt{afl} test run on a sample program with some intentional
+    memory safety vulnerabilities that can be triggered by specially-crafted
+    input files
+    \item a very brief overview of some real-world bugs and vulnerabilities
+    found by \texttt{afl} as well as its overall effect on the security
+    community
+\end{enumerate}
 
 \section{Fuzzing a Toy Program}
 
@@ -11,7 +16,31 @@
 
 \subsection{The Vulnerable Code}
 
-% TODO: show
+Figure \ref{fig:vuln-snippet} shows the vulnerable code snippet from
+the fuzzed program (for full source code, see Appendix \ref{app:vuln-full}).
+
+\begin{figure}[H]
+    \begin{lstlisting}[language={[ANSI]C}]
+// UNSAFE: read of buf[idx] without checking
+//         idx+msg->addr_len < buf_len
+memcpy(msg->addr, &(buf[idx]), msg->addr_len);
+idx += msg->addr_len;
+msg->addr[msg->addr_len] = '\0';
+
+// UNSAFE: read of buf[idx] without checking
+//         idx+msg->uname_len < buf_len
+memcpy(msg->uname, &(buf[idx]), msg->uname_len);
+msg->uname[msg->uname_len] = '\0';                                         
+
+// for user privacy, zero-out message buffer
+// when we're done with it
+// UNSAFE: writes to buf without checking
+//         msg->len <= buf_len
+memset(buf, 0, msg->len);
+\end{lstlisting}
+\caption{A vulnerable code snippet that, when given malicious or malformed data, will violate memory safety.}
+\label{fig:vuln-snippet}
+\end{figure}
 
 \subsection{\texttt{afl} Results}
 

@@ -176,6 +176,9 @@ TSWLatexianTemp*
 # KBibTeX
 *~[0-9]*
 
+# lstlisting
+*.listing
+
 ### Vim ###
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]

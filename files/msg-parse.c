@@ -1,36 +1,22 @@
-\begin{appendices}
-
-\chapter{Vulnerable C Program}
-\label{app:vuln-full}
-
-The vulnerable test program fuzzed using \texttt{afl}. Program can be
-downloaded from: TODO
-
-\renewcommand\mylstcaption{Caption goes here.}
-\begin{TCBlisting}[language={[ANSI]C},basicstyle=\scriptsize,caption={\mylstcaption}]
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
 /**
- * A simple test program that parses a msg_t from an input file and 
- * prints the username and address. The parse_msg() function is
- * intentionally written with three unsafe statements:
+ * A simple test program that parses a msg_t from an input file and prints
+ * the username and address. The parse_msg() function is intentionally
+ * written with two unsafe statements:
  *
- *     - if the input file is well-formed (the user tells the truth
- *       about the lengths of their address and username), the program
- *       proceeds as expected without any memory violations
+ *     - if the input file is well-formed (the user tells the truth about
+ *       the lengths of their address and username), the program proceeds
+ *       as expected without any memory violations
  *
- *     - however, if the length fields of the input file are
- *       inaccurate, the program will attempt may attempt to either
- *       read from or write to unowned memory, depending on the input
- *       file fields
+ *     - however, if the length fields of the input file are inaccurate, the
+ *       program will attempt may attempt to either read from or write to
+ *       unowned memory, depending on the input file fields
  *
- * See the UNSAFE statements in the parse_msg() function for details.
- *
- * This program is interesting because, with good input, memory
- * analysis tools like valgrind won't complain.
+ * See the UNSAFE statements for details.
  */
 
 #define MIN_MSG_SIZE 1 + 1 + 1 + 1 + 1
@@ -38,8 +24,8 @@ downloaded from: TODO
 #define MSG_TYPE_CLIENT_HELLO 1
 
 typedef struct {
-    uint8_t type;       // What kind of message is this?
-    uint8_t addr_len;   // How long, in BE bytes, is addr field.
+    uint8_t type;       // What kind of message is this? Only 1 recognized.
+    uint8_t addr_len;   // How long, in bytes, is addr field. Big endian.
     uint8_t uname_len;  // How long, in bytes, is uname field.
     unsigned short len; // Total length, in bytes, of this message.
     char *addr;         // Email address.
@@ -59,7 +45,7 @@ errexit(char *reason) {
  * Read a file into memory. Allocates enough memory in buf to hold the
  * file contents and returns size of buf.
  *
- * Fail gracefully and immediately if any system calls return an error
+ * Fail gracefully and immediately if any system calls return an error.
  */
 size_t
 read_file(const char *const fname, uint8_t **buf) {
@@ -95,8 +81,7 @@ read_file(const char *const fname, uint8_t **buf) {
 /**
  * Parse a msg_t struct from buf.
  *
- * This function is intentionally unsafe, see UNSAFE blocks for
- * more details.
+ * This function is intentionally unsafe, see UNSAFE blocks for more details.
  */
 msg_t *
 parse_msg(uint8_t *buf, size_t buf_len) {
@@ -107,8 +92,7 @@ parse_msg(uint8_t *buf, size_t buf_len) {
         errexit("malloc() for msg failed.\n");
     }
 
-    // Fail gracefully if file is too short to possibly contain
-    // a valid msg.
+    // Fail gracefully if file is too short to possibly contain a valid msg.
     if (buf_len < MIN_MSG_SIZE) {
         errexit("Impossibly short input buffer.\n");
     }
@@ -135,20 +119,17 @@ parse_msg(uint8_t *buf, size_t buf_len) {
         errexit("malloc() failed for msg->uname.\n");
     }
 
-    // UNSAFE: read of buf[idx] without checking
-    //         idx+msg->addr_len < buf_len
+    // UNSAFE: read of buf[idx] without checking idx+msg->addr_len < buf_len
     memcpy(msg->addr, &(buf[idx]), msg->addr_len);
     idx += msg->addr_len;
     msg->addr[msg->addr_len] = '\0';
 
-    // UNSAFE: read of buf[idx] without checking
-    //         idx+msg->uname_len < buf_len
+    // UNSAFE: read of buf[idx] without checking idx+msg->uname_len < buf_len
     memcpy(msg->uname, &(buf[idx]), msg->uname_len);
     msg->uname[msg->uname_len] = '\0';
 
-    // for user privacy, zero-out message buffer when we're done
-    // UNSAFE: writes to buf without checking
-    //         msg->len <= buf_len
+    // for user privacy, zero-out message buffer when we're done with it
+    // UNSAFE: writes to buf without verifying msg->len <= buf_len
     memset(buf, 0, msg->len);
 
     return msg;
@@ -176,6 +157,3 @@ main(int argc, char *argv[]) {
 
     return 0;
 }
-\end{TCBlisting}
-
-\end{appendices}
