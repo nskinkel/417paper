@@ -2,53 +2,17 @@
 
 In 1988 Professor Barton Miller and his associates at the University of Wisconsin began the development of a project called "fuzzer" \cite{mil-fuzz}. A software testing approach involving a target binary that is sent random input from a foreign program.
  Input cases are generated as random bytes and submitted to the target binary where it is processed and monitored for output. While the simplicity of fuzz testing is trivial, it quickly proved to be effective at finding faults and incorrect states inside a program. 
-Therefore, fuzz testing continues to be in use today.
+However, while useful, early development of fuzzers faced two problems. The determination of internal states and the inefficiencies of random data.
 
-\subsection{Complete Randomness}
-Fuzz testing wasn't without its drawbacks though. Early fuzzer's operated with purely random and highly structured data.
-This created a gatekeeper effect where many test cases were invalid and therefore rendered the fuzzer inefficient. 
-For example, a HTTP protocol GET request  must start with "GET / HTTP/1.0 \textbackslash n\textbackslash n" and this will only occur 1 in $256^{16}$ times \cite{mil-fuzz}. 
-
-\subsection{Binary-Testing}
-Another limitation to fuzz testing was originally it's greatest strength. Traditional fuzzing enabled software testers to perform input cases on binary executables. 
-However, this led to a black box testing model. In other words, it was difficult to know the internal states if no fault was received.  A grey or white box model was needed to monitor when a binary reached an illegal state.  It was also difficult to determine
+\subsection{Problem 1 : Internal States}
+Limitations to fuzz testing were originally it's greatest strength. Traditional fuzzing enabled software testers to perform input cases on binary executables. 
+However, this led to a black box testing model where only the output was known.  In other words, it was difficult to know the internal states if no fault was received. It was also difficult to determine
 if a binary reached a true fault. Denial's of service or authentication errors may have presented themselves as faults, but were really a protection mechanism.
 
-\subsection{Code Coverage and Deliverables}
+\subsection{Problem 2 :  Inefficiencies}
+Early fuzzer's operated purely random inputs against highly structured data. This created a gatekeeper effect where many test cases were invalid and rendered the fuzzer inefficient. 
+For example, a HTTP protocol GET request  must start with "GET / HTTP/1.0 \textbackslash n\textbackslash n" and this will only occur 1 in $256^{16}$ times \cite{mil-fuzz}. 
+\\\\
 Much of the input in early fuzzer implementations failed to reach blocks of code with any degree of significance due to lack of knowledge and randomness of test cases. In fact, the fuzzer had no way of really knowing if a block of code was even executed
 unless there was an output. This carries a level of uncertainty to the depth and level of code coverage.  Another issue was the delivery of structured data. Assuming input could be modified
-dynamically to match constraints, how would the fuzzer know how to deserialize and present it to the system under test at runtime? Fuzzing frameworks needed some method to convert binary to structured data.  
-
-%The software is typically comprised of three components. 
-%\begin{itemize}
-%\item \textbf{Generator} - Creates test inputs that are fed to a delivery mechanism. Generators may use heuristics, templates, grammars, or data blocks to build inputs. 
-
-%\item \textbf{Delivery Mechanism} - Takes input from the generator and feeds it to the targeted binary. Examples of delivery mechanisms include network transmissions, files, and API parameters.
-
-%\item \textbf{Monitoring System} - Observes the binary as it processes the input cases and detects when illegal states or faults occur. Monitoring Systems can vary in their complexity. Early implementations where much like a black box. Only the output was observed. More modern fuzzers like \texttt{afl} monitor the internal states of the system under test.
-%\end{itemize}
-
-
-%\subsection {What it solves}
-
-%\begin{enumerate}
-
-%\item {Portability}
-
-%Manual tests are often specific to the software under testing and cannot be replicated to different programs. Testing with \texttt{afl} can be applied to any c or c++ program. 
-
-%\item {Human testing}
-
-%Best practices for software testing typically involve a separation between developer and tester. However, the test engineer often needs some knowledge of the underlying system. This increases the cost of the development, both in time and financial resources. In addition to cost, humans are typically prone to positive case testing. Where most testing is derived by the intended use cases. Little testing may be applied to bad actor scenarios. The randomness of testing applied by \texttt{afl} ensures a broad range of testing scenarios. 
-
-%\item{Automation}
-
-%Easy automation with little configuration adds the ability to send a high volumes of test inputs to identify illegal states and faults. Mutating inputs ensure the infection and propagation required for complete code coverage. This satisfies the RIPR model. 
-
-%\item {Binary Only}
-
-%\texttt{afl} has a binary-only mode which runs test cases on a compiled program. This allows test cases when source code is not available. 
-
-%\end{enumerate}
-
-
+dynamically to match constraints, how would the fuzzer know how to deserialize and present it to the system under test at runtime? Fuzzing frameworks needed some method to convert binary to structured data. 
