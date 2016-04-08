@@ -1,4 +1,5 @@
 \chapter{History of Fuzzing}
+\label{sec:2}
 
 The core idea behind fuzzing is to inject data into the program stack (passed as faulty input) to try and get the program to crash or hang\cite{fuzz-by-number}. This failure can later be analyzed by the programmer to see if a memory vulnerability was found. Initially, this practice gained wider adoption with the black-hat community as way to uncover an exploitable vulnerabilities \cite{fuzzing-ppf}, but it can similarly be used by application developers to implement penetration testing and identify faults before they can be exploited. This paper will show that fuzzers can be (and increasingly are) utilized as a key component of security audits.
 
@@ -16,6 +17,6 @@ This leads us to generative fuzzing. A generative fuzzer creates unique test cas
 
 \subsection{Modern Fuzzing}
 
-\textit{american fuzzy lop}\cite{afl-main} (\texttt{afl}) is an innovative fuzzer
-that combines \textit{both} mutative and generative fuzzing techniques.
-As later sections will go on to explain, what makes \texttt{afl} so useful is its method of software profiling, which gives it the ability to synthesize test cases that will explore more code paths (without any additional fine-tuning).
+\textit{american fuzzy lop}\cite{afl-main} (\texttt{afl})
+combines \textit{both} mutative and generative fuzzing techniques.
+Part of what makes \texttt{afl} so useful is its method of software profiling, which gives it the ability to synthesize test cases that will explore more code paths (without any additional fine-tuning).
