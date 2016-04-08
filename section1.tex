@@ -1,17 +1,33 @@
-\chapter{Introduction to Fuzzing}
+\chapter{Introduction}
+\label{sec:1}
 
-In 1988 Professor Barton Miller and his associates at the University of Wisconsin began the development of a project called "fuzzer" \cite{mil-fuzz}. A software testing approach involving a target binary that is sent random input from a foreign program.
+This paper examines the approach and effectiveness of a modern
+software testing and security tool, \textit{american fuzzy lop}\cite{afl-main} (\texttt{afl}).
+As described by \texttt{afl}'s author Michal Zalweski\cite{afl-main}:
+\begin{quote}
+\textit{American fuzzy lop} is a security-oriented fuzzer that employs a novel type of compile-time instrumentation and genetic algorithms to automatically discover clean, interesting test cases that trigger new internal states in the targeted binary. This substantially improves the functional coverage for the fuzzed code. The compact synthesized corpora produced by the tool are also useful for seeding other, more labor- or resource-intensive testing regimes down the road. 
+\end{quote}
+
+Section \ref{sec:1} gives necessary background and motivates the need for
+tools such as \texttt{afl}; Section \ref{sec:2} reviews approaches taken by similar,
+earlier tools; Section \ref{sec:3} explores the techniques that make
+\texttt{afl} so efficient, effective, and unique; and Section \ref{sec:4}
+describes our experiences and evaluation of \texttt{afl} in practice.
+
+\section{Introduction to Fuzzing}
+
+In 1988 Professor Barton Miller and his associates at the University of Wisconsin began the development of a project called "fuzzer"\cite{mil-fuzz}, a software testing approach involving a target binary that is sent random input from a foreign program.
  Input cases are generated as random bytes and submitted to the target binary where it is processed and monitored for output. While the simplicity of fuzz testing is trivial, it quickly proved to be effective at finding faults and incorrect states inside a program. 
-However, while useful, early development of fuzzers faced two problems. The determination of internal states and the inefficiencies of random data.
+However, while useful, early development of fuzzers faced two problems: difficulty in detecting not only new reachable program states, but  unique state \textit{transitions}, and the limitations of using purely of random input data in programs expecting structured inputs.
 
-\subsection{Problem 1 : Internal States}
+\subsection{Problem 1: Detecting Unique State Transitions}
 Limitations to fuzz testing were originally it's greatest strength. Traditional fuzzing enabled software testers to perform input cases on binary executables. 
 However, this led to a black box testing model where only the output was known.  In other words, it was difficult to know the internal states if no fault was received. It was also difficult to determine
 if a binary reached a true fault. Denial's of service or authentication errors may have presented themselves as faults, but were really a protection mechanism.
 
-\subsection{Problem 2 :  Inefficiencies}
+\subsection{Problem 2: Application-specific Data Formats}
 Early fuzzer's operated purely random inputs against highly structured data. This created a gatekeeper effect where many test cases were invalid and rendered the fuzzer inefficient. 
-For example, a HTTP protocol GET request  must start with "GET / HTTP/1.0 \textbackslash n\textbackslash n" and this will only occur 1 in $256^{16}$ times \cite{mil-fuzz}. 
+For example, a HTTP protocol GET request  must start with "GET / HTTP/1.0 \textbackslash n\textbackslash n" and this will only occur 1 in $256^{16}$ times\cite{mil-fuzz}. 
 \\\\
 Much of the input in early fuzzer implementations failed to reach blocks of code with any degree of significance due to lack of knowledge and randomness of test cases. In fact, the fuzzer had no way of really knowing if a block of code was even executed
 unless there was an output. This carries a level of uncertainty to the depth and level of code coverage.  Another issue was the delivery of structured data. Assuming input could be modified
