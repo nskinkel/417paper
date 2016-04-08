@@ -1,9 +1,12 @@
 \chapter{History of Fuzzing}
 
+
 The core idea behind fuzzing is to inject data into the program stack (passed as faulty input) to try and get the program to crash or hang. \cite{fuzz-by-number} This failure can later be analyzed by the programmer to see if a memory vulnerability was found. Initially, this practice gained wider adoption with the black-hat community as way to uncover an exploitable vulnerability \cite{fuzzing-ppf}, but it can similarly be used by application developers to implement penetration testing and fix bugs before they can be exploited. This paper will show that fuzzers can be (and increasingly are) utilized as a key component of security audits.
+\newline
 
 Early fuzzers were relatively simple, relying on injecting random data. The issue with this was that most test cases would be rejected before reaching code execution. \cite{mil-fuzz}. This gave way to the understanding that in order to make fuzzers more efficient (and useful), they must pass test values that will be executed by the target application. There are two main approaches that have been historically used to make this happen: a mutative approach and a generative one \cite{mil-fuzz}.
 
 A mutative fuzzer takes existing values and modifies it a bit each time. While this type of fuzzing technique is easy to implement, the resultant tests often provide poor code coverage \cite{fuzzing-ppf} since it is limited to variations on the initial data.
+\newline
 
 This leads us to generative fuzzing. A generative fuzzer creates unique test cases from its own algorithms. Understandably, this historically required a lot more effort on the part of the application programmer as the best test values are generated when the fuzzer has an in depth understanding of the underlying data types \cite{fuzzing-ppf}. As later sections will go on to explain, what makes American fuzzy lop so useful is its method of software profiling, which gives it the ability to synthesize test cases that will explore more code paths (without any additional fine-tuning).
