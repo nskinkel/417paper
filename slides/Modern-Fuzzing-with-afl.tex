@@ -1,0 +1,142 @@
+\documentclass{beamer}
+
+\mode<presentation> {
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+%\usecolortheme{albatross}
+\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx}
+\usepackage{multimedia}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{scalefnt}
+\usepackage{listings}
+\usepackage{todonotes}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{caption}
+
+
+\setitemize{label=\usebeamerfont*{itemize item}
+\usebeamercolor[fg]{itemize item}
+\usebeamertemplate{itemize item}}
+
+\definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
+\definecolor{aureolin}{rgb}{0.99, 0.93, 0.0}
+\definecolor{bostonuniversityred}{rgb}{0.8, 0.0, 0.0}
+
+\renewcommand{\tabularxcolumn}[1]{>{\small}m{#1}}
+\renewcommand{\arraystretch}{2}
+
+%% Listings definition for Go language
+%% Go language reference : http://www.golang.org
+%% Author : Uriel Corfa <uriel@corfa.fr>
+%% Project home: https://bitbucket.org/korfuri/golang-latex-listings
+
+\lstdefinelanguage{go}{
+  % Keywords as defined in the BNF
+  morekeywords=[1]{break,default,func,interface,%
+    case,defer,go,map,struct,chan,else,goto,package,%
+    switch,const,fallthrough,if,range,type,continue,%
+    for,import,return,var,select},
+  % Special identifiers, builtin functions
+  morekeywords=[2]{make,new,nil,len,cap,copy,complex,%
+    real,imag,panic,recover,print,println,iota,close,%
+    closed,_,true,false,append,delete},
+  % Basic types
+  morekeywords=[3]{%
+    string,int,uint,uintptr,double,float,byte,%
+    int8,int16,int32,int64,int128,%
+    uint8,uint16,uint32,uint64,uint128,%
+    float32,float64,complex64,complex128,%
+    rune},
+  % Strings : "toto", 'toto', `toto`
+  morestring=[b]{"},
+  morestring=[b]{'},
+  morestring=[b]{`},
+  % Comments : /* comment */ and // comment
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  % Options
+  sensitive=true
+}
+
+\lstset{
+  language={go},
+  basicstyle=\ttfamily\tiny
+}
+
+\title[afl]{\textbf{Modern Fuzzing with afl}}
+
+\author{}
+\institute[]
+{
+Anish Kunduru \\
+Jon Osborne \\
+Nik Kinkel \\
+\medskip
+}
+\date{\today}
+
+\begin{document}
+
+\include{title}
+\include{slide1-history}
+\include{slide2-early-approaches}
+\include{slide3-high-level-afl}
+\include{slide4-state}
+\include{slide5-core}
+\include{slide6-fuzzing-strategies}
+\include{slide7-real-world}
+\include{slide8-experience}
+\include{slide9-questions}
+
+\end{document} 
