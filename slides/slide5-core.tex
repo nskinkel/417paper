@@ -1,5 +1,5 @@
 % Slide 5
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Core Operation}
 
 \begin{figure}
@@ -23,7 +23,17 @@
 
 \column{0.5\textwidth}
 
-Blah blah
+\begin{figure}
+\caption{\texttt{cow} Process Clones}
+\begin{center}
+\begin{tikzpicture}[scale=0.6, every node/.style={scale=0.6}]
+\node[circle,draw](z){$\mathcal{P}_{init}$}
+	child{ node[circle,draw]{$\mathcal{C}_1$} child{node[circle,draw]{$\mathcal{C}_4$}} child{node[circle,draw]{$\mathcal{C}_5$}}}
+	child{ node[circle,draw]{$\mathcal{C}_2$} }
+	child{ node[circle,draw]{$\mathcal{C}_3$} child{node[circle,draw]{$\mathcal{C}_n$}}};
+\end{tikzpicture}
+\end{center}
+\end{figure}
 
 \end{columns}
 \end{frame}
