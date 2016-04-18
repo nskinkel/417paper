@@ -1,6 +1,14 @@
 % Slide 4
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{\texttt{afl} and Program State}
+
+\begin{center}
+$\mathcal{T}_{State}\colon \forall \mathcal{C}\in\mathcal{P}, \mathcal{C}\rightarrow \mathcal{B}_i$
+\end{center}
+
+$\mathcal{P} = \texttt{Program}, \mathcal{T} = \texttt{Test Case}, \mathcal{C} = (\texttt{src}, \texttt{dst})$
+$\mathcal{B} = [\{0\}, \{1\}, \{2\}, \{3\}, \{4-7\}, \{8-15\}, \{16-31\}, \{32-127\}, \{128+\}]$
+
 
 \begin{columns}[c]
 
@@ -8,10 +16,21 @@
 
 \begin{itemize}
     \item \texttt{afl} state classification
-    \item Tracking state on live executions
+    \item Tracking live state
     \item \textit{New} states
     \item \textit{Unique} crashes
 \end{itemize}
+
+\column{0.5\textwidth}
+
+\begin{figure}
+\begin{lstlisting}[language={[ANSI]C},frame=single]
+cur_location = <COMPILE-TIME RANDOM>;
+shared_mem[cur_location ^ prev_location]++;
+prev_location = cur_location >> 1;\end{lstlisting}
+\caption{Compile-time instrumentation}
+\label{fig:instrumentation}
+\end{figure}
 
 \end{columns}
 
