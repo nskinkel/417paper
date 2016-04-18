@@ -1,8 +1,11 @@
 % Slide 7
 \begin{frame}
 \frametitle{AFL in Action}
+
 \begin{columns}
+
 \column{0.4\textwidth}
+
 \begin{itemize}
 \item{Increased security}
 \begin{itemize}
@@ -11,9 +14,26 @@
 \end{itemize}
 \item{Can also be used to test program stability}
 \end{itemize}
+
 \column{0.6\textwidth}
-\begin{figure}
-\frame{\includegraphics[width=.6\linewidth]{figures/bitmapRenderingFirefox.png}}
-\end{figure}
+
+\begin{center}
+\begin{table}
+\caption{\texttt{afl} Trophy Case}
+\tiny
+\begin{tabular}{c | c | c}
+Firefox & Internet Explorer & Safari \\
+OpenSSH & Putty & OpenSSL \\
+GnuPG & bash & Adobe Flash \\
+sqlite & PHP & libpng \\
+nginx & JavascriptCore & ffmpeg \\
+iOS / ImageIO & Android / libstagefright & VLC \\
+redis & perl & wireshark \\
+Linux ext4 & glibc & llvm \\
+\end{tabular}
+\caption*{...and many more}
+\end{table}
+\end{center}
+
 \end{columns}
 \end{frame}
