@@ -8,7 +8,7 @@ import struct
 FNAME_PREFIX    = 'afl-seed-msg'
 MAX_UNAME_LEN   = 64
 MAX_ADDR_LEN    = 64
-OUTPUT_NUM      = 10
+OUTPUT_NUM      = 1
 
 
 def get_one():
