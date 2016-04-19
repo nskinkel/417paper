@@ -3,7 +3,7 @@
 \frametitle{\texttt{afl} and Program State}
 
 \begin{center}
-$\mathcal{T}_{State}\colon \forall \mathcal{C}\in\mathcal{P}, \mathcal{C}\rightarrow \mathcal{B}_i$
+$\mathcal{T}_{State}\colon \forall \mathcal{C}_i\in\mathcal{P}, \mathcal{C}_i\rightarrow \mathcal{B}_j$
 \end{center}
 
 $\mathcal{P} = \texttt{Program}, \mathcal{T} = \texttt{Test Case}, \mathcal{C} = (\texttt{src}, \texttt{dst})$
@@ -24,7 +24,7 @@ $\mathcal{B} = [\{0\}, \{1\}, \{2\}, \{3\}, \{4-7\}, \{8-15\}, \{16-31\}, \{32-1
 \column{0.5\textwidth}
 
 \begin{figure}
-\begin{lstlisting}[language={[ANSI]C},frame=single]
+\begin{lstlisting}[language={[ANSI]C},frame=single,numbers=none]
 cur_location = <COMPILE-TIME RANDOM>;
 shared_mem[cur_location ^ prev_location]++;
 prev_location = cur_location >> 1;\end{lstlisting}
